@@ -4,3 +4,6 @@
 # Python folders
 __pycache__/
 .ipynb_checkpoints/
+
+# Misc
+*.tsv
