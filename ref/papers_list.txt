@@ -1,0 +1,18 @@
+# Extended project explanation
+https://ceur-ws.org/Vol-2936/paper-205.pdf
+
+# List of CLEF papers
+https://ceur-ws.org/Vol-2936/
+
+# Github repo touche
+https://github.com/touche-webis-de/touche-code/tree/main/clef22
+
+# DistilBERT for argument retrieval
+https://ceur-ws.org/Vol-2936/paper-209.pdf
+
+# Approaches for the task 2021
+https://ceur-ws.org/Vol-2936/paper-211.pdf
+https://ceur-ws.org/Vol-2936/paper-214.pdf
+
+# Approach for the task 2022
+https://ceur-ws.org/Vol-3180/paper-255.pdf
