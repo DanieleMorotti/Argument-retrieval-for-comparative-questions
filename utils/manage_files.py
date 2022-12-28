@@ -1,5 +1,7 @@
+import gzip
 import shutil
 import os
+import os.path
 import urllib.request
 
 from tqdm import tqdm
@@ -29,7 +31,7 @@ class DownloadFile:
         """The file name (either zip or folder/file name) must
         be without any path prefixes (e.g. parent folders). The parent
         directory is then added as a prefix of the file name, in this way
-        paths are similar to each other, i.e. having the same prefix. """
+        paths are similar to each other, i.e. having the same prefix."""
         if file_name is None:
             return None
 
@@ -39,9 +41,9 @@ class DownloadFile:
 
         return os.path.join(base_folder, file_name)
 
-    def tqdm_copy_file_obj(self, src, dest):
+    def tqdm_copy_file_obj(self, src, dest, length: int):
         with tqdm(
-            total=int(src.info()["Content-Length"]),
+            total=length,
             unit="B",
             unit_scale=True,
             desc="Downloading file",
@@ -61,11 +63,11 @@ class DownloadFile:
 
         if not os.path.isfile(file_path):
             with urllib.request.urlopen(self.url) as src, open(file_path, "wb") as dest:
-                self.tqdm_copy_file_obj(src, dest)
+                self.tqdm_copy_file_obj(src, dest, int(src.info()["Content-Length"]))
         else:
             print(f"File '{file_path}' already present")
 
-    def unzip(self):
+    def __unzip(self):
         """Unzip the file."""
         assert self.zip_name is not None
 
@@ -75,12 +77,31 @@ class DownloadFile:
         except ValueError as e:
             print(f"File {self.zip_name} invalid")
 
+    def __ungzip(self):
+        """Extract a gz archive"""
+        assert self.zip_name is not None
+
+        with gzip.open(self.zip_name, "rb") as src_file:
+            with open(self.file_name, "wb") as dest_file:
+                dest_file.write(src_file.read())
+        print(f"'{self.zip_name}' unzipped in '{self.file_name}'")
+
+    def uncompress(self):
+        assert self.zip_name is not None
+        _, ext = self.zip_name.rsplit(".", maxsplit=1)
+        if ext == "gz":
+            self.__ungzip()
+        elif ext == "zip":
+            self.__unzip()
+        else:
+            print("Format not supported")
+
     def __call__(self):
-        """ Download and unzip only if the respective fields are set (e.g. url or zip name)"""
-        if not os.path.isdir(self.file_name):
+        """Download and unzip only if the respective fields are set (e.g. url or zip name)"""
+        if not os.path.exists(self.file_name):
             if self.url is not None:
                 self.download()
             if self.zip_name is not None:
-                self.unzip()
+                self.uncompress()
         else:
-            print(f"Folder '{self.file_name}' already present")
+            print(f"'{self.file_name}' already present")
