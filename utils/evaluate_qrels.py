@@ -101,13 +101,13 @@ def calculate_mean(scores, depth):
     )
 
 
-def main(qrel_path, run_path, depth):
+def compute_ndcg(qrel_path, run_path, depth):
     qrels = load_qrels(qrel_path)
     runs = load_runs(run_path, depth)
     scores = calculate_scores(runs, qrels, depth)
     mean_scores = calculate_mean(scores, depth)
     print(mean_scores.round(3))
-
+    return mean_scores
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -116,5 +116,5 @@ if __name__ == '__main__':
     parser.add_argument('--depth', type=int, required=True)
     args = parser.parse_args()
 
-    main(args.qrel_path, args.run_path, args.depth)
+    compute_ndcg(args.qrel_path, args.run_path, args.depth)
 
