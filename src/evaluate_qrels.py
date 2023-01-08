@@ -106,7 +106,7 @@ def compute_ndcg(qrel_path, run_path, depth):
     runs = load_runs(run_path, depth)
     scores = calculate_scores(runs, qrels, depth)
     mean_scores = calculate_mean(scores, depth)
-    print(mean_scores.round(3))
+    #print(mean_scores.round(3))
     return mean_scores
 
 if __name__ == '__main__':
