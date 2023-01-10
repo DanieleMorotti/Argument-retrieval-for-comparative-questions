@@ -1,10 +1,10 @@
-import ET
 import gzip
 import re
 import shutil
 import os
 import os.path
 import urllib.request
+import xml.etree.ElementTree as ET
 
 import pandas as pd
 from tqdm import tqdm
