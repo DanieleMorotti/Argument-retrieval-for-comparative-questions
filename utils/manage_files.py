@@ -1,10 +1,69 @@
+import ET
 import gzip
+import re
 import shutil
 import os
 import os.path
 import urllib.request
 
+import pandas as pd
 from tqdm import tqdm
+
+
+def download_files(url: str) -> str:
+    # Extract from the url the file name to download
+    prog = re.compile(r"\/files\/(?P<name>.*?)\?")
+    re_search = prog.search(url)
+    assert re_search is not None
+
+    # The file name is in the capture group "name"
+    download_name = re_search.group("name")
+    # split the file name in its name without the extension and its extension
+    base_name, download_ext = download_name.rsplit(".", maxsplit=1)
+
+    # if the extension is an archive then the file needs to be split
+    download = None
+    if download_ext in ["gz", "zip"]:
+        zip_name = download_name
+        # the file name unzipped is the base name
+        download = DownloadFile(base_name, zip_name, url)
+    else:
+        # the file name is not an archive so the downloaded file has the correct name
+        download = DownloadFile(download_name, url=url)
+
+    print(
+        f"\nDownloading {'and extracting ' if download.zip_name is not None else ''}files"
+    )
+    download()
+    return download.file_name
+
+
+def open_df(file_name: str, names=None, sep=None) -> pd.DataFrame:
+    ext = file_name.rsplit(".", maxsplit=1)[1]
+
+    df = None
+    if ext == "jsonl":
+        df = pd.read_json(file_name, lines=True)
+    else:
+        assert names is not None
+        assert sep is not None
+        df = pd.read_csv(file_name, names=names, sep=sep)
+
+    assert isinstance(df, pd.DataFrame)
+    return df
+
+
+def open_xml(file_name: str) -> list[str]:
+    mytree = ET.parse(file_name)
+    myroot = mytree.getroot()
+
+    topics = list()
+    for item in myroot:
+        for x in item:
+            if x.tag == "title":
+                assert isinstance(x.text, str)
+                topics.append(x.text.strip())
+    return topics
 
 
 class DownloadFile:
