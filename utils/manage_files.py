@@ -3,6 +3,7 @@ import re
 import shutil
 import os
 import os.path
+import typing
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -53,7 +54,7 @@ def open_df(file_name: str, names=None, sep=None) -> pd.DataFrame:
     return df
 
 
-def open_xml(file_name: str) -> list[str]:
+def open_xml(file_name: str) -> typing.List[str]:
     mytree = ET.parse(file_name)
     myroot = mytree.getroot()
 
