@@ -1,4 +1,6 @@
-import shutil
+import shutil, os
+
+import numpy as np
 
 import faiss
 from pyserini.search import LuceneSearcher, TctColBertQueryEncoder
@@ -7,8 +9,10 @@ class DocumentsIndex:
     allowed_zip_format = ['zip', 'tar', 'tar.gz']
 
     def __init__(self, index_path, index_type, set_rm3=False, ft=10, fd=10, lam=0.6,
-                 set_bm25=False, k1=0.9, b=0.4):
-        '''
+                 set_bm25=False, k=0.9, b=0.4):
+        ''' 
+            It creates an instance of a sparse or a dense index.
+
             Parameters:
                 - index_path: str
                     The path to the sparse or dense index.
@@ -30,13 +34,14 @@ class DocumentsIndex:
                 - set_bm25: bool
                     If you want to set custom parameters for the BM25 score of the
                     sparse index.
-                - k1: float
+                - k: float
                     The value for giving more importance to the frequency of the 
                     terms (only if sparse index and set_bm25 is True).
                 - b: float
                     The value for giving more importance to the length of the
                     documents (only if sparse index and set_bm25 is True).
         '''
+        # If the index exists we can proceed
         if self.__path_analysis(index_path):
             self.index_path = index_path
             self.index_type = index_type if index_type in ['dense', 'sparse'] else 'sparse'
@@ -54,13 +59,20 @@ class DocumentsIndex:
                 if set_rm3:
                     self.index.set_rm3(ft, fd, lam)
                 if set_bm25:
-                    self.index.set_bm25(k1, b)
+                    self.index.set_bm25(k, b)
         
 
     def __path_analysis(self, path: str):
         '''
             It checks if the file exists and if it is a zip it unpacks it.
-            It returns False if an error occurs, otherwise True.
+            
+            Parameters:
+                - path: str
+                    The path of the index.
+            
+            Returns:
+                - bool
+                It returns False if an error occurs, otherwise True.
         '''
         if not os.path.exists(path):
             print(f"ERROR: the index doesn't exist at the following path: {path}")
@@ -77,7 +89,8 @@ class DocumentsIndex:
 
     def __load_index(self):
         '''
-            It actually loads the index into a variable.
+            It actually loads the index into a variable, and the encoder
+            in the case of a dense index.
         '''
         print(f"Loading the {self.index_type} index file ...")
         if self.index_type == "sparse":
@@ -93,6 +106,20 @@ class DocumentsIndex:
     def __index_to_docid(self, indices, corpus_df):
         '''
             It converts indices to document ids (for dense index).
+            E.g. 
+                indices = [1, 12] -> ['clueweb12-sdajsd__1', 'clueweb12-sdkjda__12']
+                
+            Parameters: 
+                - indices: list[int]
+                    A list of indices of the elements we want to retrieve
+                    from the dataframe.
+                - corpus_df: pd.DataFrame
+                    The dataframe of the corpus.
+            
+            Returns:
+                - list[str]
+                    It returns a list of strings that represent the ids
+                    of the documents.
         '''
         indices = indices.tolist()
         for ind in range(len(indices)):
@@ -100,21 +127,38 @@ class DocumentsIndex:
         return indices
     
 
-    def search(self, query: str, k: int=10, corpus_df=None, verbose=False):
+    def search(self, query: str, k: int=40, corpus_df=None, verbose=False):
         ''' 
             If the query is a single string it returns a list of tuples (id, score),
-            otherwise it returns a dictionary with keys the numbers with the position
-            of the query in the array. For each query you will find the same array
-            as for the single query. 
+            otherwise it returns a dictionary, the numbers with the position of 
+            the query in the array as keys. For each query you will find the same 
+            array as for the single query. 
             E.g.
                 query = "Dogs or cats?"
                 res = [(doc_id1, score1), (doc_id2, score2), ...]
 
                 query = ["Dogs or cats?", "Coke or Pepsi?"]
                 res = {'0':[(doc_id1, score1),...], '1': [(doc_id1, score1,...)]}
+            
+            Parameters:
+                - query: str | list[str]
+                    A string or a list of strings.
+                - k: int
+                    The number of documents to retrieve from the index.
+                - corpus_df: pd.DataFrame
+                    If the index is dense we need it to convert the indices to the
+                    document ids.
+                - verbose: bool
+                    It True then the results of the search will be printed.
+
+            Returns: 
+                - list[(str, float)]
+                    A list of tuples with the document id and the relative score
+                    ordered by the score.
         '''
         if self.index_type == 'sparse':
             if isinstance(query, list):
+                # Run batch search if we have a list of queries
                 hits = self.index.batch_search(query, [str(i) for i in range(len(query))], k=k)
                 for key in hits.keys():
                     hits[key] = [(el.docid, el.score) for el in hits[key]]
@@ -133,6 +177,7 @@ class DocumentsIndex:
                     query_enc = np.expand_dims(query_enc, axis=0)
                     embeddings.append(query_enc)
 
+                # Stack the embeddings of the queries to pass a batch (len(embeddings), 768)
                 distances, indices = self.index.search(np.concatenate(embeddings), k)
                 # Convert indices to document ids
                 indices = self.__index_to_docid(indices, corpus_df)

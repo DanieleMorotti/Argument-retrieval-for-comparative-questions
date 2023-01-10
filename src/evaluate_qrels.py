@@ -1,3 +1,7 @@
+'''
+    This script has been provided by the Touchè team at https://github.com/touche-webis-de/touche-code/tree/main/clef22.
+'''
+
 import pandas as pd
 import numpy as np
 import argparse
