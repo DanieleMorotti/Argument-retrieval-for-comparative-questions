@@ -186,7 +186,7 @@ class Pipeline:
                     "score": data[key]['scores'][i],
                     "tag": self.model_name
                 }
-                self.res = self.res.append(row, ignore_index=True)
+                res = res.append(row, ignore_index=True)
 
         if save:
             res_path = os.path.join(self.results_dir, self.model_name + "_results.qrels")

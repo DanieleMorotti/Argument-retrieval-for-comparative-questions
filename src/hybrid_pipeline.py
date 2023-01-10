@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import defaultdict
 
-from .Pipeline import Pipeline
+from .pipeline import Pipeline
 
 
 class HybridPipeline(Pipeline):
