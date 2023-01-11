@@ -4,3 +4,7 @@ autofaiss==2.15.5
 transformers
 torch
 tqdm
+contractions
+spicy
+keras
+tensorflow
