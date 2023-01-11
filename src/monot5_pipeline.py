@@ -70,7 +70,7 @@ class MonoT5Pipeline(Pipeline):
         sparse_results = self.index.search(queries, k=k)
 
         # Reranking
-        reranked_results = self.__reranking(queries, corpus_df, sparse_results)
+        reranked_results = self.__reranking(topics, questions_list, corpus_df, sparse_results)
 
         scores = self._Pipeline__create_scores_dict(reranked_results, topics)
         trec_data, res_path = self.save_trec(scores, save=True)
