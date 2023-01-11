@@ -1,5 +1,6 @@
 pyserini==0.19.2
 faiss-cpu==1.7.2
 autofaiss==2.15.5
-transformers==4.21.3
-torch==1.12.1
+transformers
+torch
+tqdm
