@@ -122,3 +122,21 @@ if __name__ == '__main__':
 
     compute_ndcg(args.qrel_path, args.run_path, args.depth)
 
+
+def compute_recall(qrel_path, run_path):
+    judge_df = load_qrels(qrel_path)
+    run_df = load_runs(run_path)
+
+    # restrict to only relevant judgements 
+    judge_sub_df = judge_df[judge_df.Score >= 1]
+
+    judge_dict = judge_sub_df.groupby("Topic").apply(len).to_dict()
+    ret_judge_dict = run_df\
+        .merge(judge_sub_df, how="inner", left_on=["Topic", "ID"], right_on=["Topic", "ID"])\
+        .groupby("Topic")\
+        .apply(len)\
+        .to_dict()
+    
+    recall = sum([ret_judge_dict.get(k,0) / judge_dict[k] for k in judge_dict.keys()]) / len(judge_dict.keys())
+
+    return recall
