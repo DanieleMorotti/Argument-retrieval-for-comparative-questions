@@ -113,19 +113,10 @@ def compute_ndcg(qrel_path, run_path, depth):
     #print(mean_scores.round(3))
     return mean_scores
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--qrel_path', type=str, required=True)
-    parser.add_argument('--run_path', type=str, required=True)
-    parser.add_argument('--depth', type=int, required=True)
-    args = parser.parse_args()
 
-    compute_ndcg(args.qrel_path, args.run_path, args.depth)
-
-
-def compute_recall(qrel_path, run_path):
+def compute_recall(qrel_path, run_path, depth=100):
     judge_df = load_qrels(qrel_path)
-    run_df = load_runs(run_path)
+    run_df = load_runs(run_path, depth)
 
     # restrict to only relevant judgements 
     judge_sub_df = judge_df[judge_df.Score >= 1]
@@ -140,3 +131,13 @@ def compute_recall(qrel_path, run_path):
     recall = sum([ret_judge_dict.get(k,0) / judge_dict[k] for k in judge_dict.keys()]) / len(judge_dict.keys())
 
     return recall
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--qrel_path', type=str, required=True)
+    parser.add_argument('--run_path', type=str, required=True)
+    parser.add_argument('--depth', type=int, required=True)
+    args = parser.parse_args()
+
+    compute_ndcg(args.qrel_path, args.run_path, args.depth)
