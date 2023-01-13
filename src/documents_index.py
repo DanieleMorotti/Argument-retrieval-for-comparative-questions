@@ -152,9 +152,11 @@ class DocumentsIndex:
                     It True then the results of the search will be printed.
 
             Returns: 
-                - list[(str, float)]
-                    A list of tuples with the document id and the relative score
-                    ordered by the score.
+                - dict
+                    A dictionary where for each key, that represents the index of the question
+                    in the input query list, there is a list of tuples with the document id and
+                    the relative score, ordered by the score. In case of a single string passed
+                    the dictionary has the default '0' key.
         '''
         if self.index_type == 'sparse':
             if isinstance(query, list):
@@ -164,7 +166,7 @@ class DocumentsIndex:
                     hits[key] = [(el.docid, el.score) for el in hits[key]]
             else:
                 hits = self.index.search(query, k=k)
-                hits = [(el.docid, el.score) for el in hits]
+                hits = {'0': [(el.docid, el.score) for el in hits]}
         else:
             if corpus_df is None:
                 print("ERROR: corpus needed for the dense index in order to convert the indices to the document ids.")
@@ -190,7 +192,7 @@ class DocumentsIndex:
                 distances, indices = self.index.search(query_enc, k)
                 # Convert indices to document ids
                 indices = self.__index_to_docid(indices, corpus_df)
-                hits = list(zip(indices[0], distances[0]))
+                hits = {'0': list(zip(indices[0], distances[0]))}
 
         if verbose:
             self.__print_results(hits)
