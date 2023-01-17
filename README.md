@@ -26,10 +26,10 @@ The main goal was to find models that perform well on both quality and relevance
 Indeed, we didn't create different models with different goals, but compact models with the objective of optimizing both scores.
 
 
-You can look the details of the different implemented pipelines in the ```src/``` directory, where the classes are located. 
+You can look at the details of the different implemented pipelines in the ```src/``` directory, where the classes are located. 
 You can find all the information that you need, in order to reproduce the results, in the ```document_retrieval.ipynb``` notebook. 
 
-We suggest you to run the notebook in Colab to perform the heaviest operations and to import in an easier way the files from Google Drive. In the notebook and in the report we did some references to a Drive shared folder but it was only available for the professors to make them test the project. However, in the notebook you will find all the instructions to reproduce our experiments.
+We suggest you to run the notebook in [Colab](https://colab.research.google.com/) to perform the heaviest operations and to import in an easier way the files from Google Drive. In the notebook and in the report we did some references to a Drive shared folder but it was only available for the professors to make them test the project. However, in the notebook you will find all the instructions to reproduce our experiments.
 
 
 ## 2. Stance detection
@@ -39,7 +39,7 @@ In this task we had to classify between 4 different classes:
 - FIRST, when the text favour the first object;
 - SECOND, when the text favour the second object.
 <div align="center">
-    <img src="/images/stance_schema.png" width="60%" />
+    <img src="/images/stance_schema.png" width="55%" />
     <p style="font-size:0.8rem" align="center">
         <em>Description of a basic pipeline</em> 
     </p>
@@ -61,7 +61,7 @@ In order to improve the performance, we read [a paper](https://dl.acm.org/doi/10
 - The ***first model*** had to detect if the text was favouring an object or not.
 - The ***second model*** determined whether the text was favouring the first or the second object.
 <div align="center">
-    <img src="/images/stance_model2.png" width="45%" />
+    <img src="/images/stance_model2.png" width="55%" />
     <p style="font-size:0.8rem" align="center">
         <em>System with two models</em>
     </p>
@@ -81,7 +81,7 @@ You can find the whole implementation and a detailed explanation in the ```stanc
     │
 	├── src/     	             -> Directory that contains the classes for our pipelines and evaluation scripts
 	│
-	├── utils/                    -> Directory that contains some files to manage the download of the files and other useful functions.
+	├── utils/                   -> Directory that contains some files to manage the download of the files and other useful functions.
     |
 	├── README.md
     ├── LICENSE
