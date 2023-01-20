@@ -87,7 +87,8 @@ You can find the whole implementation and a detailed explanation in the ```stanc
     ├── LICENSE
 	└── requirements.txt
 
-
-
-
-
+## Authors
+The project has been implemented by:
+- *[Daniele Morotti](https://github.com/DanieleMorotti)*
+- *[Andrea Sciamarelli](https://github.com/andrea9810)*
+- *[Andrea Valente](https://github.com/Valendrew)*.
